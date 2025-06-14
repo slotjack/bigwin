@@ -52,8 +52,9 @@ app.get('/', (req, res) => {
         </div>
         
         <div class="endpoint">
-            <h3>🤖 Botrix Komutu</h3>
-            <p><code>!addcommand !bigwin fetch[https://bigwin-z94k.onrender.com/trigger-bigwin?amount=$(randnum 1000 10000)]</code></p>
+            <h3>🤖 Botrix Komutu (Moderatör)</h3>
+            <p><code>!addcommand !bigwin fetch[https://bigwin-z94k.onrender.com/trigger-bigwin]</code></p>
+            <p><small>Sabit 5000 TL ile çalışır, OBS animasyonunu tetikler</small></p>
         </div>
         
         <script>
