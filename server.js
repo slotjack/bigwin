@@ -96,6 +96,12 @@ app.get('/trigger-bigwin', (req, res) => {
         // BOTRIX'e sadece düz metin gönder
         res.setHeader('Content-Type', 'text/plain');
         res.send(''); // veya 'OK' da olabilir
+    } catch (error) {
+        console.error('Trigger bigwin error:', error);
+        res.status(500).send('Sunucu hatası');
+    }
+});
+
 
     } catch (error) {
         console.error('Trigger bigwin error:', error);
