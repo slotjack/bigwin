@@ -5,8 +5,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Form data için
 
-// Global değişkenler (sizin kodunuzdaki gibi basit)
+// Global değişkenler
 let bigWinActive = false;
 let lastWinAmount = 0;
 
@@ -47,51 +48,124 @@ app.get('/', (req, res) => {
         <div class="endpoint">
             <h3><span class="method">POST</span> <span class="url">/trigger-bigwin</span></h3>
             <p>Body: {"amount": 2500}</p>
-            <p>Test: <code>curl -X POST -H "Content-Type: application/json" -d '{"amount": 2500}' ${req.get('host')}/trigger-bigwin</code></p>
+            <p>Test: <code>curl "https://bigwin-z94k.onrender.com/trigger-bigwin?amount=2500"</code></p>
         </div>
         
         <div class="endpoint">
             <h3>🤖 Botrix Komutu</h3>
-            <p><code>!addcommand !bigwin fetch POST https://${req.get('host')}/trigger-bigwin {"amount": "$(randnum 1000 10000)"}</code></p>
+            <p><code>!addcommand !bigwin fetch[https://bigwin-z94k.onrender.com/trigger-bigwin?amount=$(randnum 1000 10000)]</code></p>
         </div>
         
         <script>
-            // 3 saniyede bir yenile
-            setTimeout(() => location.reload(), 3000);
+            // 5 saniyede bir yenile
+            setTimeout(() => location.reload(), 5000);
         </script>
     </body>
     </html>
     `);
 });
 
-// Sizin kodunuz - basit ve etkili
+// BigWin durumu kontrol et
 app.get('/check-bigwin', (req, res) => {
+    try {
+        res.json({
+            bigwin: bigWinActive,
+            amount: lastWinAmount,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Check bigwin error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// BigWin tetikle
+app.post('/trigger-bigwin', (req, res) => {
+    try {
+        // Farklı veri formatlarını destekle
+        let amount = req.body.amount || req.body.Amount || 1000;
+        
+        // String'den number'a çevir
+        if (typeof amount === 'string') {
+            amount = parseInt(amount) || 1000;
+        }
+        
+        bigWinActive = true;
+        lastWinAmount = amount;
+        
+        // 6 saniye sonra otomatik kapat
+        setTimeout(() => {
+            bigWinActive = false;
+        }, 6000);
+        
+        console.log(`🎰 BIG WIN! ${lastWinAmount} TL - ${new Date().toISOString()}`);
+        
+        res.json({
+            success: true,
+            message: `Big Win activated: ${amount} TL`,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('Trigger bigwin error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Internal server error',
+            message: error.message 
+        });
+    }
+});
+
+// Manuel sıfırlama
+app.post('/reset', (req, res) => {
+    try {
+        bigWinActive = false;
+        lastWinAmount = 0;
+        res.json({
+            success: true, 
+            message: 'Reset edildi',
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Reset error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
     res.json({
-        bigwin: bigWinActive,
-        amount: lastWinAmount
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
     });
 });
 
-app.post('/trigger-bigwin', (req, res) => {
-    bigWinActive = true;
-    lastWinAmount = req.body.amount || 1000;
-    
-    // 6 saniye sonra otomatik kapat
-    setTimeout(() => bigWinActive = false, 6000);
-    
-    console.log(`🎰 BIG WIN! ${lastWinAmount} TL`);
-    
-    res.json({success: true});
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({
+        error: 'Endpoint not found',
+        available_endpoints: [
+            'GET /',
+            'GET /check-bigwin',
+            'POST /trigger-bigwin',
+            'POST /reset',
+            'GET /health'
+        ]
+    });
 });
 
-// Ekstra: Manuel sıfırlama
-app.post('/reset', (req, res) => {
-    bigWinActive = false;
-    lastWinAmount = 0;
-    res.json({success: true, message: 'Reset edildi'});
+// Error handler
+app.use((error, req, res, next) => {
+    console.error('Global error:', error);
+    res.status(500).json({
+        error: 'Internal server error',
+        message: error.message
+    });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server çalışıyor: http://localhost:${PORT}`);
+    console.log(`📡 Render URL: https://bigwin-z94k.onrender.com`);
 });
