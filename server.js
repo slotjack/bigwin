@@ -85,29 +85,28 @@ app.get('/check-bigwin', (req, res) => {
 app.get('/trigger-bigwin', (req, res) => {
     try {
         bigWinActive = true;
-        lastWinAmount = 1000; // HTML'deki varsayılan değer
-        
-        // 6 saniye sonra otomatik kapat (HTML animasyon süresi)
+        lastWinAmount = 1000;
+
         setTimeout(() => {
             bigWinActive = false;
         }, 6000);
-        
+
         console.log(`🎰 BIG WIN BAŞLADI! - ${new Date().toLocaleString('tr-TR')}`);
-        
-        res.json({
-            success: true,
-            message: "🎉 Big Win kutlaması başladı!",
-            amount: lastWinAmount,
-            timestamp: new Date().toISOString()
-        });
-        
+
+        // BOTRIX'e sadece düz metin gönder
+        res.setHeader('Content-Type', 'text/plain');
+        res.send(''); // veya 'OK' da olabilir
+
     } catch (error) {
         console.error('Trigger bigwin error:', error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             error: 'Sunucu hatası',
-            message: error.message 
+            message: error.message
         });
+    }
+});
+
     }
 });
 
