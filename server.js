@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
         <h1>🎰 Big Win Kutlama API</h1>
         
         <div class="status ${bigWinActive ? 'active' : 'inactive'}">
-            ${bigWinActive ? `🎉 BIG WIN AKTIF! 🎉<br>💰 ${lastWinAmount} TL 💰` : '⏳ Beklemede...'}
+            ${bigWinActive ? `🎉 BIG WIN AKTİF! 🎉<br>💰 ${lastWinAmount} TL 💰` : '⏳ Beklemede...'}
         </div>
         
         <h2>📡 API Endpoints</h2>
@@ -81,7 +81,7 @@ app.get('/check-bigwin', (req, res) => {
     }
 });
 
-        // BigWin tetikle - Botrix için GET endpoint
+// BigWin tetikle - Botrix için GET endpoint
 app.get('/trigger-bigwin', (req, res) => {
     try {
         bigWinActive = true;
@@ -99,20 +99,6 @@ app.get('/trigger-bigwin', (req, res) => {
     } catch (error) {
         console.error('Trigger bigwin error:', error);
         res.status(500).send('Sunucu hatası');
-    }
-});
-
-
-    } catch (error) {
-        console.error('Trigger bigwin error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Sunucu hatası',
-            message: error.message
-        });
-    }
-});
-
     }
 });
 
@@ -156,7 +142,7 @@ app.use('*', (req, res) => {
     });
 });
 
-// Error handler
+// Global error handler
 app.use((error, req, res, next) => {
     console.error('Global error:', error);
     res.status(500).json({
